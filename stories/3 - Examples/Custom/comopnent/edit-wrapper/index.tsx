@@ -8,7 +8,7 @@ export interface IEditorProps {
 }
 
 export default function EditWrapper({id, children}: IEditorProps) {
-  const {setNodeRef, listeners, attributes, transform, transition} =
+  const {isDragging, setNodeRef, listeners, attributes, transform, transition} =
     useSortable({
       id,
     });
@@ -16,9 +16,8 @@ export default function EditWrapper({id, children}: IEditorProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     cursor: 'grab',
+    opacity: isDragging ? 0.5 : 1,
   };
-
-
 
   return (
     <div ref={setNodeRef} {...listeners} {...attributes} style={style}>
