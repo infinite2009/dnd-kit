@@ -83,6 +83,8 @@ export const Basic = () => {
 
       const result = collisions.sort(sortCollisionsDesc);
 
+      console.log('nodes: ', result);
+
       console.log(result.map((item) => `${item.id}: ${item.data.value}`));
 
       return result;
@@ -114,7 +116,7 @@ export const Basic = () => {
           items={['A', 'B', 'C', 'D', 'E', 'F']}
           strategy={rectSortingStrategy}
         >
-          <EditWrapper id="A">
+          <EditWrapper id="A" childrenId={['A1', 'A2', 'A3', 'A4']}>
             <Item text="A">
               <SortableContext
                 items={['A1', 'A2', 'A3', 'A4']}
@@ -135,7 +137,7 @@ export const Basic = () => {
               </SortableContext>
             </Item>
           </EditWrapper>
-          <EditWrapper id="B">
+          <EditWrapper id="B" childrenId={['B1', 'B2', 'B3', 'B4']}>
             <Item text="B">
               <SortableContext items={['B1', 'B2', 'B3', 'B4']}>
                 <EditWrapper id="B1">
@@ -153,7 +155,7 @@ export const Basic = () => {
               </SortableContext>
             </Item>
           </EditWrapper>
-          <EditWrapper id="C">
+          <EditWrapper id="C" childrenId={['C1', 'C2', 'C3', 'C4']}>
             <Item text="C">
               <SortableContext items={['C1', 'C2', 'C3', 'C4']}>
                 <EditWrapper id="C1">
@@ -171,7 +173,7 @@ export const Basic = () => {
               </SortableContext>
             </Item>
           </EditWrapper>
-          <EditWrapper id="D">
+          <EditWrapper id="D" childrenId={['D1', 'D2', 'D3', 'D4']}>
             <Item text="D">
               <SortableContext items={['D1', 'D2', 'D3', 'D4']}>
                 <EditWrapper id="D1">
@@ -189,7 +191,7 @@ export const Basic = () => {
               </SortableContext>
             </Item>
           </EditWrapper>
-          <EditWrapper id="E">
+          <EditWrapper id="E" childrenId={['E1', 'E2', 'E3', 'E4']}>
             <Item text="E">
               <SortableContext items={['E1', 'E2', 'E3', 'E4']}>
                 <EditWrapper id="E1">
@@ -207,7 +209,7 @@ export const Basic = () => {
               </SortableContext>
             </Item>
           </EditWrapper>
-          <EditWrapper id="F">
+          <EditWrapper id="F" childrenId={['F1', 'F2', 'F3', 'F4']}>
             <Item text="F">
               <SortableContext items={['F1', 'F2', 'F3', 'F4']}>
                 <EditWrapper id="F1">
