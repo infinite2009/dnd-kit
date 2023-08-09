@@ -122,6 +122,7 @@ interface Props {
   columns?: number;
   containerStyle?: React.CSSProperties;
   coordinateGetter?: KeyboardCoordinateGetter;
+
   getItemStyles?(args: {
     value: UniqueIdentifier;
     index: number;
@@ -131,7 +132,9 @@ interface Props {
     isSorting: boolean;
     isDragOverlay: boolean;
   }): React.CSSProperties;
+
   wrapperStyle?(args: {index: number}): React.CSSProperties;
+
   itemCount?: number;
   items?: Items;
   handle?: boolean;
@@ -653,9 +656,13 @@ interface SortableItemProps {
   index: number;
   handle: boolean;
   disabled?: boolean;
+
   style(args: any): React.CSSProperties;
+
   getIndex(id: UniqueIdentifier): number;
+
   renderItem(): React.ReactElement;
+
   wrapperStyle({index}: {index: number}): React.CSSProperties;
 }
 
@@ -696,14 +703,17 @@ function SortableItem({
       handleProps={handle ? {ref: setActivatorNodeRef} : undefined}
       index={index}
       wrapperStyle={wrapperStyle({index})}
-      style={style({
-        index,
-        value: id,
-        isDragging,
-        isSorting,
-        overIndex: over ? getIndex(over.id) : overIndex,
-        containerId,
-      })}
+      style={{
+        ...style({
+          index,
+          value: id,
+          isDragging,
+          isSorting,
+          overIndex: over ? getIndex(over.id) : overIndex,
+          containerId,
+        }),
+        margin: '40px 20px',
+      }}
       color={getColor(id)}
       transition={transition}
       transform={transform}

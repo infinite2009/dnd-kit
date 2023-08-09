@@ -17,6 +17,7 @@ export default function EditWrapper({id, children}: IEditorProps) {
     transition,
     cursor: 'grab',
     opacity: isDragging ? 0.5 : 1,
+    margin: '60px 20px',
   };
 
   return (
