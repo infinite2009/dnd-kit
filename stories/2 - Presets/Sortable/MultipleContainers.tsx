@@ -458,11 +458,7 @@ export function MultipleContainers({
       >
         <SortableContext
           items={[...containers, PLACEHOLDER_ID]}
-          strategy={
-            vertical
-              ? verticalListSortingStrategy
-              : horizontalListSortingStrategy
-          }
+          strategy={verticalListSortingStrategy}
         >
           {containers.map((containerId) => (
             <DroppableContainer
@@ -712,7 +708,6 @@ function SortableItem({
           overIndex: over ? getIndex(over.id) : overIndex,
           containerId,
         }),
-        margin: '40px 20px',
       }}
       color={getColor(id)}
       transition={transition}
