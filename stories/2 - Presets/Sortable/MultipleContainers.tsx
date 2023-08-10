@@ -21,6 +21,8 @@ import {
   MeasuringStrategy,
   KeyboardCoordinateGetter,
   defaultDropAnimationSideEffects,
+  ClientRect,
+  CollisionDescriptor,
 } from '@dnd-kit/core';
 import {
   AnimateLayoutChanges,
@@ -30,7 +32,6 @@ import {
   defaultAnimateLayoutChanges,
   verticalListSortingStrategy,
   SortingStrategy,
-  horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
 import {coordinateGetter as multipleContainersCoordinateGetter} from './multipleContainersKeyboardCoordinates';
@@ -38,6 +39,8 @@ import {coordinateGetter as multipleContainersCoordinateGetter} from './multiple
 import {Item, Container, ContainerProps} from '../../components';
 
 import {createRange} from '../../utilities';
+import {sortCollisionsDesc} from '@dnd-kit/core/src/utilities/algorithms/helpers';
+import {getIntersectionRatio} from '@dnd-kit/core/src/utilities/algorithms/rectIntersection';
 
 export default {
   title: 'Presets/Sortable/Multiple Containers',
@@ -302,10 +305,63 @@ export function MultipleContainers({
     });
   }, [items]);
 
+  const sortingStrategy = useCallback(
+    ({rects, activeIndex, overIndex, index}) => {
+      const newRects = arrayMove(rects, overIndex, activeIndex);
+
+      console.log('new rects: ', newRects.map(item => item.top));
+
+      const oldRect = rects[index];
+      const newRect = newRects[index];
+
+      if (!newRect || !oldRect) {
+        return null;
+      }
+
+      return {
+        x: newRect.left - oldRect.left,
+        y: newRect.top - oldRect.top,
+        scaleX: newRect.width / oldRect.width,
+        scaleY: newRect.height / oldRect.height,
+      };
+    },
+    []
+  );
+
+  const detection = useCallback(
+    ({collisionRect, droppableRects, droppableContainers}) => {
+      const collisions: CollisionDescriptor[] = [];
+
+      for (const droppableContainer of droppableContainers) {
+        const {id} = droppableContainer;
+        const rect = droppableRects.get(id);
+
+        if (rect) {
+          const intersectionRatio = getIntersectionRatio(rect, collisionRect);
+
+          if (intersectionRatio > 0) {
+            collisions.push({
+              id,
+              data: {droppableContainer, value: intersectionRatio},
+            });
+          }
+        }
+      }
+
+      console.log(
+        'collisions: ',
+        collisions.sort(sortCollisionsDesc).map((item) => item.id)
+      );
+
+      return collisions.sort(sortCollisionsDesc);
+    },
+    []
+  );
+
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={collisionDetectionStrategy}
+      collisionDetection={detection}
       measuring={{
         droppable: {
           strategy: MeasuringStrategy.Always,
@@ -472,7 +528,10 @@ export function MultipleContainers({
               unstyled={minimal}
               onRemove={() => handleRemove(containerId)}
             >
-              <SortableContext items={items[containerId]} strategy={strategy}>
+              <SortableContext
+                items={items[containerId]}
+                strategy={sortingStrategy}
+              >
                 {items[containerId].map((value, index) => {
                   return (
                     <SortableItem
@@ -681,6 +740,7 @@ function SortableItem({
     isSorting,
     over,
     overIndex,
+    newIndex,
     transform,
     transition,
   } = useSortable({
@@ -688,6 +748,10 @@ function SortableItem({
   });
   const mounted = useMountStatus();
   const mountedWhileDragging = isDragging && !mounted;
+
+  if (index !== newIndex) {
+    console.log('index and newIndex: ', `${index}${newIndex}`);
+  }
 
   return (
     <Item
