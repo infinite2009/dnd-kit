@@ -15,6 +15,7 @@ export default function DropAnchor({top, left, width, height}: IDropAnchorProps)
     left,
     width,
     height,
+    backgroundColor: '#f00',
   };
   return <div style={style} />;
 }

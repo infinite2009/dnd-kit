@@ -29,10 +29,10 @@ const dropAnimation: DropAnimation = {
 
 export const Basic = () => {
   const [activeId, setActiveId] = useState<string>('');
-  const [top, setTop] = useState<number>(0);
-  const [left, setLeft] = useState<number>(0);
-  const [width, setWidth] = useState<number>(0);
-  const [height, setHeight] = useState<number>(0);
+  const [top, setTop] = useState<number>(200);
+  const [left, setLeft] = useState<number>(600);
+  const [width, setWidth] = useState<number>(100);
+  const [height, setHeight] = useState<number>(2);
 
   function handleDraggingStart({active}) {
     setActiveId(active.id);
@@ -138,15 +138,19 @@ export const Basic = () => {
 
       const result = collisions.sort(sortCollisionsDesc);
 
-      const childrenIds = result[0].data.childrenId;
-      // 从结果中过滤出子节点
-      const childrenRects = childrenIds?.map((item: string) => {
-        return droppableRects.get(item);
-      });
+      if (result.length) {
+        const childrenIds = result[0].data.childrenId;
+        // 从结果中过滤出子节点
+        const childrenRects = childrenIds?.map((item: string) => {
+          return droppableRects.get(item);
+        });
 
-      console.log('碰撞检测到的父组件：', result[0]);
-      // 找出插入的 index，并计算出锚点的位置
-      return result;
+        console.log('碰撞检测到的父组件：', result[0]);
+        console.log('所有的碰撞：', result.map(item => `${item.id}:${item.data.ratio}:${item.data.value}`));
+        // 找出插入的 index，并计算出锚点的位置
+        return result;
+      }
+      return [];
     },
     []
   );
