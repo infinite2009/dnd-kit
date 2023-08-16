@@ -92,10 +92,6 @@ export const Basic = () => {
     {data: {value: a}}: CollisionDescriptor,
     {data: {value: b}}: CollisionDescriptor
   ) {
-    // if (b !== a) {
-    //   return b - a;
-    // }
-    // return ratioB - ratioA;
     return b - a;
   }
 
