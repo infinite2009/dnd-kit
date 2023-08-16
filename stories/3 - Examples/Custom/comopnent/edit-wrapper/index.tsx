@@ -6,14 +6,14 @@ export interface IEditorProps {
   id: string;
   childrenId?: string[];
   children: React.ReactNode;
-  direction: 'row' | 'column';
+  direction?: 'row' | 'column';
 }
 
 export default function EditWrapper({
   id,
   childrenId,
   children,
-  direction,
+  direction = 'column',
 }: IEditorProps) {
   const {isOver, setNodeRef: setDroppableNodeRef} = useDroppable({
     id,
