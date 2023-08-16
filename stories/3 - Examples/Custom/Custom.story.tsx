@@ -215,6 +215,12 @@ export const Basic = () => {
                     <EditWrapper id="A111">
                       <Item text="A111" />
                     </EditWrapper>
+                    <EditWrapper id="A112">
+                      <Item text="A112" />
+                    </EditWrapper>
+                    <EditWrapper id="A113">
+                      <Item text="A113" />
+                    </EditWrapper>
                   </Item>
                 </EditWrapper>
               </Item>
@@ -229,6 +235,29 @@ export const Basic = () => {
                   <Item text="C11">
                     <EditWrapper id="C111">
                       <Item text="C111" />
+                    </EditWrapper>
+                    <EditWrapper id="C112">
+                      <Item text="C112" />
+                    </EditWrapper>
+                    <EditWrapper id="C113">
+                      <Item text="C113" />
+                    </EditWrapper>
+                  </Item>
+                </EditWrapper>
+              </Item>
+            </EditWrapper>
+            <EditWrapper id="C2">
+              <Item text="C2">
+                <EditWrapper id="C21">
+                  <Item text="C21">
+                    <EditWrapper id="C211">
+                      <Item text="C211" />
+                    </EditWrapper>
+                    <EditWrapper id="C212">
+                      <Item text="C212" />
+                    </EditWrapper>
+                    <EditWrapper id="C213">
+                      <Item text="C213" />
                     </EditWrapper>
                   </Item>
                 </EditWrapper>
