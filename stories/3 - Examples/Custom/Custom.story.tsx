@@ -145,7 +145,7 @@ export const Basic = () => {
         if (rect && active.id !== id) {
           // 这里的 collisionRect 就是移动的矩形
           const intersectionType = calcIntersectionType(rect, collisionRect);
-          console.log('intersectionType: ', intersectionType);
+          // console.log('intersectionType: ', intersectionType);
           if (intersectionType === 2) {
             collisions.push({
               id,
@@ -162,17 +162,36 @@ export const Basic = () => {
       const result = collisions.sort(sortCollisionsDesc);
 
       if (result.length) {
+        const direction = result[0];
         const childrenIds = result[0].data.childrenId;
+
+        console.log(`${result[0].id}当前子节点：`, childrenIds);
+
         // 从结果中过滤出子节点
         const childrenRects = childrenIds?.map((item: string) => {
           return droppableRects.get(item);
         });
 
-        console.log('碰撞检测到的父组件：', result[0]);
-        console.log(
-          '所有的碰撞：',
-          result.map((item) => `${item.id}碰撞类型:${item.data.value}`)
-        );
+        console.log('子节点矩形数据：', childrenRects);
+
+        const dropAnchor = {
+          top: 0,
+          left: 0,
+          width: 0,
+          height: 0,
+        };
+
+        if (direction === 'column') {
+
+        } else {
+
+        }
+
+        // console.log('碰撞检测到的父组件：', result[0]);
+        // console.log(
+        //   '所有的碰撞：',
+        //   result.map((item) => `${item.id}碰撞类型:${item.data.value}`)
+        // );
         // 找出插入的 index，并计算出锚点的位置
         return result;
       }
