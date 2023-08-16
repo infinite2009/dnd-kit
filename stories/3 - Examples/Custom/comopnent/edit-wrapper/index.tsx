@@ -1,18 +1,25 @@
 import {useCombinedRefs} from '@dnd-kit/utilities';
-import React, { CSSProperties } from "react";
+import React, {CSSProperties} from 'react';
 import {useDraggable, useDroppable} from '@dnd-kit/core';
 
 export interface IEditorProps {
   id: string;
   childrenId?: string[];
   children: React.ReactNode;
+  direction: 'row' | 'column';
 }
 
-export default function EditWrapper({id, childrenId, children}: IEditorProps) {
+export default function EditWrapper({
+  id,
+  childrenId,
+  children,
+  direction,
+}: IEditorProps) {
   const {isOver, setNodeRef: setDroppableNodeRef} = useDroppable({
     id,
     data: {
       childrenId,
+      direction: direction || 'column',
     },
   });
   const {
