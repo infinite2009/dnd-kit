@@ -202,11 +202,11 @@ export const Basic = () => {
           flexWrap: 'wrap',
         }}
       >
-        <EditWrapper id="A" childrenId={['A1', 'A2', 'A3', 'A4']}>
+        <EditWrapper id="A" childrenId={['A1']}>
           <Item text="A">
-            <EditWrapper id="A1">
+            <EditWrapper id="A1" childrenId={['A11']}>
               <Item text="A1">
-                <EditWrapper id="A11">
+                <EditWrapper id="A11" childrenId={['A111, A112, A113']}>
                   <Item text="A11">
                     <EditWrapper id="A111">
                       <Item text="A111" />
@@ -223,11 +223,11 @@ export const Basic = () => {
             </EditWrapper>
           </Item>
         </EditWrapper>
-        <EditWrapper id="C" childrenId={['C1', 'C2', 'C3', 'C4']}>
+        <EditWrapper id="C" childrenId={['C1', 'C2']}>
           <Item text="C">
-            <EditWrapper id="C1">
+            <EditWrapper id="C1" childrenId={['C11']}>
               <Item text="C1">
-                <EditWrapper id="C11">
+                <EditWrapper id="C11" childrenId={['C111', 'C112', 'C113']}>
                   <Item text="C11">
                     <EditWrapper id="C111">
                       <Item text="C111" />
@@ -242,9 +242,9 @@ export const Basic = () => {
                 </EditWrapper>
               </Item>
             </EditWrapper>
-            <EditWrapper id="C2">
+            <EditWrapper id="C2" childrenId={['C21']}>
               <Item text="C2">
-                <EditWrapper id="C21">
+                <EditWrapper id="C21" childrenId={['C211', 'C212', 'C213']}>
                   <Item text="C21">
                     <EditWrapper id="C211">
                       <Item text="C211" />
