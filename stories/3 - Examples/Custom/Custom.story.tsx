@@ -89,13 +89,47 @@ export const Basic = () => {
   }
 
   function sortCollisionsDesc(
-    {data: {value: a, ratio: ratioA}}: CollisionDescriptor,
-    {data: {value: b, ratio: ratioB}}: CollisionDescriptor
+    {data: {value: a}}: CollisionDescriptor,
+    {data: {value: b}}: CollisionDescriptor
   ) {
-    if (b !== a) {
-      return b - a;
+    // if (b !== a) {
+    //   return b - a;
+    // }
+    // return ratioB - ratioA;
+    return b - a;
+  }
+
+  /**
+   * 计算重叠的类型：
+   * return 0 | 1 | 2. 0 表示没有重叠，1 表示左上角落在另一个矩形的内部边缘，2 表示左上角落在另一个矩形的核心区域
+   */
+  function calcIntersectionType(rect, collisionRect) {
+    const pointer = {
+      top: collisionRect.top,
+      left: collisionRect.left,
+    };
+    if (!isInRect(pointer, rect)) {
+      return 0;
     }
-    return ratioB - ratioA;
+    if (isInRect(pointer, rect, 4)) {
+      return 2;
+    }
+    return 1;
+  }
+
+  function isInRect(point, rect, offset: number = 0) {
+    const {top: pointerTop, left: pointerLeft} = point;
+    const {top, left, width, height} = rect;
+    const correctedTop = top + offset;
+    const correctedLeft = left + offset;
+    const correctedWidth = width - offset;
+    const correctedHeight = height - offset;
+    return (
+      pointerTop > correctedTop &&
+      pointerTop < correctedTop + correctedHeight &&
+      pointerLeft > correctedLeft &&
+      pointerLeft < correctedLeft + correctedWidth
+    );
   }
 
   /**
@@ -106,10 +140,6 @@ export const Basic = () => {
   const customDetection = useCallback(
     ({active, collisionRect, droppableRects, droppableContainers}) => {
       const collisions: CollisionDescriptor[] = [];
-      const cordinatesOfCollisionRect = {
-        top: collisionRect.top,
-        left: collisionRect.left,
-      };
 
       for (const droppableContainer of droppableContainers) {
         // 查出每一个容器的矩形尺寸
@@ -118,17 +148,14 @@ export const Basic = () => {
 
         if (rect && active.id !== id) {
           // 这里的 collisionRect 就是移动的矩形
-          // TODO 需要重命名
-          const intersectionArea = calIntersectionArea(rect, collisionRect);
-
-          if (intersectionArea.area > 0) {
-            // TODO: 替换为用左上角来计算落在哪个容器上
+          const intersectionType = calcIntersectionType(rect, collisionRect);
+          console.log('intersectionType: ', intersectionType);
+          if (intersectionType === 2) {
             collisions.push({
               id,
               data: {
                 droppableContainer,
-                value: intersectionArea.area,
-                ratio: intersectionArea.ratio,
+                value: intersectionType,
                 childrenId: droppableContainer.data.current.childrenId,
               },
             });
@@ -146,7 +173,10 @@ export const Basic = () => {
         });
 
         console.log('碰撞检测到的父组件：', result[0]);
-        console.log('所有的碰撞：', result.map(item => `${item.id}:${item.data.ratio}:${item.data.value}`));
+        console.log(
+          '所有的碰撞：',
+          result.map((item) => `${item.id}碰撞类型:${item.data.value}`)
+        );
         // 找出插入的 index，并计算出锚点的位置
         return result;
       }
@@ -179,9 +209,9 @@ export const Basic = () => {
         <EditWrapper id="A" childrenId={['A1', 'A2', 'A3', 'A4']}>
           <Item text="A">
             <EditWrapper id="A1">
-              <Item text="A1" >
+              <Item text="A1">
                 <EditWrapper id="A11">
-                  <Item text="A11" >
+                  <Item text="A11">
                     <EditWrapper id="A111">
                       <Item text="A111" />
                     </EditWrapper>
@@ -194,10 +224,10 @@ export const Basic = () => {
         <EditWrapper id="C" childrenId={['C1', 'C2', 'C3', 'C4']}>
           <Item text="C">
             <EditWrapper id="C1">
-              <Item text="C1" >
+              <Item text="C1">
                 <EditWrapper id="C11">
-                  <Item text="C11" >
-                    <EditWrapper id="C111" >
+                  <Item text="C11">
+                    <EditWrapper id="C111">
                       <Item text="C111" />
                     </EditWrapper>
                   </Item>
