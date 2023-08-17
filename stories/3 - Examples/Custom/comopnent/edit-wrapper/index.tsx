@@ -42,6 +42,8 @@ export default function EditWrapper({
     outline: isOver ? '2px solid #7193f1' : undefined,
     transition: 'border 0.5s ease-in-out',
     boxSizing: 'border-box',
+    display: 'flex',
+    flexDirection: direction || 'column',
   };
 
   return (
