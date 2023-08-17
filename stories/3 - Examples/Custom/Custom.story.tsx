@@ -128,6 +128,13 @@ export const Basic = () => {
     );
   }
 
+  function setAnchor(obj: any) {
+    setTop(obj.top);
+    setLeft(obj.left);
+    setWidth(obj.width);
+    setHeight(obj.height);
+  }
+
   /**
    * collisionRect: 碰撞矩形的尺寸数据
    * droppableRects: 所有可以放入的矩形尺寸数据 map
@@ -152,7 +159,7 @@ export const Basic = () => {
               data: {
                 droppableContainer,
                 value: intersectionType,
-                childrenId: droppableContainer.data.current.childrenId,
+                ...droppableContainer.data.current,
               },
             });
           }
@@ -162,29 +169,49 @@ export const Basic = () => {
       const result = collisions.sort(sortCollisionsDesc);
 
       if (result.length) {
-        const direction = result[0];
-        const childrenIds = result[0].data.childrenId;
-
-        console.log(`${result[0].id}当前子节点：`, childrenIds);
+        const {direction, childrenId} = result[0].data;
 
         // 从结果中过滤出子节点
-        const childrenRects = childrenIds?.map((item: string) => {
+        const childrenRects = childrenId?.map((item: string) => {
           return droppableRects.get(item);
         });
 
-        console.log('子节点矩形数据：', childrenRects);
+        if (childrenRects?.length) {
+          // 根据容器内子元素的排列方向，如果是列排布，对比各个子元素的上下边界
+          // 寻找最近的兄弟节点
+          const ranges = childrenRects.map((item) =>
+            direction === 'column' ? item.top : item.left
+          );
+          ranges.push(
+            direction === 'column'
+              ? childrenRects[childrenRects.length - 1].bottom
+              : childrenRects[childrenRects.length - 1].right
+          );
 
-        const dropAnchor = {
-          top: 0,
-          left: 0,
-          width: 0,
-          height: 0,
-        };
+          let nearestIndex = 0;
+          let minDistance = Number.MAX_SAFE_INTEGER;
 
-        if (direction === 'column') {
+          for (let i = 0, l = ranges.length; i < l; i++) {
+            const distance = Math.abs(ranges[i] - collisionRect.top);
+            console.log('distance: ', distance);
+            if (distance < minDistance) {
+              nearestIndex = i;
+              minDistance = distance;
+            }
+          }
 
-        } else {
-
+          if (nearestIndex < childrenRects.length) {
+            setAnchor({
+              ...childrenRects[nearestIndex],
+              height: 2,
+            });
+          } else {
+            setAnchor({
+              ...childrenRects[nearestIndex - 1],
+              top: childrenRects[nearestIndex - 1].bottom,
+              height: 2,
+            });
+          }
         }
 
         // console.log('碰撞检测到的父组件：', result[0]);
@@ -225,7 +252,11 @@ export const Basic = () => {
           <Item text="A">
             <EditWrapper id="A1" childrenId={['A11']}>
               <Item text="A1">
-                <EditWrapper id="A11" childrenId={['A111, A112, A113']}>
+                <EditWrapper
+                  id="A11"
+                  childrenId={['A111', 'A112', 'A113']}
+                  direction="row"
+                >
                   <Item text="A11">
                     <EditWrapper id="A111">
                       <Item text="A111" />
