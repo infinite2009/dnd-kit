@@ -181,7 +181,7 @@ export const Basic = () => {
           // 寻找最近的兄弟节点
           const ranges = childrenRects.map((item) =>
             direction === 'column' ? item.top : item.left
-          );
+          ).filter(item => !!item);
           ranges.push(
             direction === 'column'
               ? childrenRects[childrenRects.length - 1].bottom
