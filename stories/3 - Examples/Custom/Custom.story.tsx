@@ -194,9 +194,9 @@ export const Basic = () => {
           for (let i = 0, l = ranges.length; i < l; i++) {
             const distance = Math.abs(
               ranges[i] -
-                (direction === 'column'
-                  ? collisionRect.top
-                  : collisionRect.left)
+              (direction === 'column'
+                ? collisionRect.top
+                : collisionRect.left)
             );
             if (distance < minDistance) {
               nearestIndex = i;
@@ -221,6 +221,25 @@ export const Basic = () => {
             style.height = 2;
           } else {
             style.width = 2;
+          }
+          setAnchor(style);
+        } else {
+          const rect = droppableRects.get(result[0].id);
+          let style;
+          if (direction === 'column') {
+            style = {
+              top: rect.top + Math.round(rect.height / 2),
+              width: rect.width,
+              height: 2,
+              left: rect.left,
+            }
+          } else {
+            style = {
+              top: rect.top,
+              width: 2,
+              height: rect.height,
+              left: rect.left + Math.round(rect.width / 2),
+            }
           }
           setAnchor(style);
         }
