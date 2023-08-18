@@ -12,6 +12,7 @@ import Item from './comopnent/Item';
 import EditWrapper from './comopnent/edit-wrapper';
 import {createPortal} from 'react-dom';
 import DropAnchor from './comopnent/drop-anchor';
+import {Simulate} from 'react-dom/test-utils';
 
 export default {
   title: 'Examples/Custom/Custom',
@@ -135,6 +136,17 @@ export const Basic = () => {
     setHeight(obj.height);
   }
 
+  function isDescendant(entry: string, target: string, parentDict: {[key: string]: string}) {
+    let currentParent = parentDict[entry];
+    while (currentParent) {
+      if (target === currentParent) {
+        return true;
+      }
+      currentParent = parentDict[currentParent];
+    }
+    return false;
+  }
+
   /**
    * collisionRect: 碰撞矩形的尺寸数据
    * droppableRects: 所有可以放入的矩形尺寸数据 map
@@ -144,12 +156,27 @@ export const Basic = () => {
     ({active, collisionRect, droppableRects, droppableContainers}) => {
       const collisions: CollisionDescriptor[] = [];
 
+      const parentDict: {[key: string]: string} = {};
+
+      droppableContainers.forEach(
+        (item: {data: {current: {childrenId: any[]}}; id: string}) => {
+          if (item.data.current.childrenId?.length) {
+            item.data.current.childrenId.forEach((childId) => {
+              parentDict[childId] = item.id;
+            });
+          }
+        }
+      );
+
+      console.log('亲族图谱：', parentDict);
+
       for (const droppableContainer of droppableContainers) {
         // 查出每一个容器的矩形尺寸
         const {id} = droppableContainer;
         const rect = droppableRects.get(id);
 
-        if (rect && active.id !== id) {
+        // 既不是自身，也不是自己的后代节点
+        if (rect && active.id !== id  && !isDescendant(id, active.id, parentDict)) {
           // 这里的 collisionRect 就是移动的矩形
           const intersectionType = calcIntersectionType(rect, collisionRect);
           // console.log('intersectionType: ', intersectionType);
