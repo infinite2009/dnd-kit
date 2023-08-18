@@ -213,13 +213,6 @@ export const Basic = () => {
             });
           }
         }
-
-        // console.log('碰撞检测到的父组件：', result[0]);
-        // console.log(
-        //   '所有的碰撞：',
-        //   result.map((item) => `${item.id}碰撞类型:${item.data.value}`)
-        // );
-        // 找出插入的 index，并计算出锚点的位置
         return result;
       }
       return [];
