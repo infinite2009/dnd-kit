@@ -192,26 +192,37 @@ export const Basic = () => {
           let minDistance = Number.MAX_SAFE_INTEGER;
 
           for (let i = 0, l = ranges.length; i < l; i++) {
-            const distance = Math.abs(ranges[i] - collisionRect.top);
-            console.log('distance: ', distance);
+            const distance = Math.abs(
+              ranges[i] -
+                (direction === 'column'
+                  ? collisionRect.top
+                  : collisionRect.left)
+            );
             if (distance < minDistance) {
               nearestIndex = i;
               minDistance = distance;
             }
           }
 
+          let style;
           if (nearestIndex < childrenRects.length) {
-            setAnchor({
-              ...childrenRects[nearestIndex],
-              height: 2,
-            });
+            style = {...childrenRects[nearestIndex]};
           } else {
-            setAnchor({
+            style = {
               ...childrenRects[nearestIndex - 1],
-              top: childrenRects[nearestIndex - 1].bottom,
-              height: 2,
-            });
+            };
+            if (direction === 'column') {
+              style.top = childrenRects[nearestIndex - 1].bottom;
+            } else {
+              style.left = childrenRects[nearestIndex - 1].right;
+            }
           }
+          if (direction === 'column') {
+            style.height = 2;
+          } else {
+            style.width = 2;
+          }
+          setAnchor(style);
         }
         return result;
       }
@@ -247,7 +258,16 @@ export const Basic = () => {
               <Item text="A1">
                 <EditWrapper
                   id="A11"
-                  childrenId={['A111', 'A112', 'A113']}
+                  childrenId={[
+                    'A111',
+                    'A112',
+                    'A113',
+                    'A114',
+                    'A115',
+                    'A116',
+                    'A117',
+                    'A118',
+                  ]}
                   direction="row"
                 >
                   <Item text="A11" direction="row">
@@ -259,6 +279,21 @@ export const Basic = () => {
                     </EditWrapper>
                     <EditWrapper id="A113">
                       <Item text="A113" />
+                    </EditWrapper>
+                    <EditWrapper id="A114">
+                      <Item text="A114" />
+                    </EditWrapper>
+                    <EditWrapper id="A115">
+                      <Item text="A115" />
+                    </EditWrapper>
+                    <EditWrapper id="A116">
+                      <Item text="A116" />
+                    </EditWrapper>
+                    <EditWrapper id="A117">
+                      <Item text="A117" />
+                    </EditWrapper>
+                    <EditWrapper id="A118">
+                      <Item text="A118" />
                     </EditWrapper>
                   </Item>
                 </EditWrapper>
@@ -307,7 +342,7 @@ export const Basic = () => {
       </div>
       {createPortal(
         <DragOverlay dropAnimation={dropAnimation}>
-          <Item text={activeId}></Item>
+          <div style={{height: 40, width: 40, backgroundColor: '#f00'}}></div>
         </DragOverlay>,
         document.body
       )}
