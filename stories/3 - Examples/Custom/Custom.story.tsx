@@ -250,7 +250,7 @@ export const Basic = () => {
                   childrenId={['A111', 'A112', 'A113']}
                   direction="row"
                 >
-                  <Item text="A11">
+                  <Item text="A11" direction="row">
                     <EditWrapper id="A111">
                       <Item text="A111" />
                     </EditWrapper>
