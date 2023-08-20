@@ -168,7 +168,6 @@ export const Basic = () => {
         if (rect && active.id !== id  && !isDescendant(id, active.id, parentDict)) {
           // 这里的 collisionRect 就是移动的矩形
           const intersectionType = calcIntersectionType(rect, collisionRect);
-          // console.log('intersectionType: ', intersectionType);
           if (intersectionType === 2) {
             collisions.push({
               id,
@@ -278,9 +277,6 @@ export const Basic = () => {
               }
             }
           }
-
-          console.log('插入位置：', insertIndex);
-          console.log('style.top: ', style.top);
           setAnchor(style);
         } else {
           const rect = droppableRects.get(result[0].id);
