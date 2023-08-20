@@ -1,9 +1,8 @@
 import {
-  ClientRect,
   CollisionDescriptor,
   defaultDropAnimationSideEffects,
-  DndContext,
-  DragOverlay,
+  DndContext, DragOverEvent,
+  DragOverlay, DragStartEvent,
   DropAnimation,
   MeasuringStrategy,
 } from '@dnd-kit/core';
@@ -37,7 +36,7 @@ export const Basic = () => {
 
   const collisionOffset = 10;
 
-  function customModifier({activatorEvent, draggingNodeRect, transform}) {
+  function customModifier({activatorEvent, draggingNodeRect, transform}: any) {
     if (draggingNodeRect && activatorEvent) {
       const activatorCoordinates = getEventCoordinates(activatorEvent);
 
@@ -62,60 +61,18 @@ export const Basic = () => {
     return transform;
   }
 
-  function handleDraggingStart({active}) {
-    setActiveId(active.id);
+  function handleDraggingStart({active}: DragStartEvent) {
+    setActiveId(active.id as string);
   }
 
-  function handleDraggingOver({active, over}) {
+  function handleDraggingOver({over}: DragOverEvent) {
     console.log("I'm over on: ", over?.id);
   }
 
-  function handleDraggingEnd({active, over}) {
+  function handleDraggingEnd({active, over}: any) {
     console.log('active: ', active);
     console.log('over: ', over);
   }
-
-  function setAnchor(top: number, left: number, width: number, height: number) {
-    setTop(top);
-    setLeft(left);
-    setWidth(width);
-    setHeight(height);
-  }
-
-  function calIntersectionArea(entry: ClientRect, target: ClientRect) {
-    const top = Math.max(target.top, entry.top);
-    const left = Math.max(target.left, entry.left);
-    const right = Math.min(
-      target.left + target.width,
-      entry.left + entry.width
-    );
-    const bottom = Math.min(
-      target.top + target.height,
-      entry.top + entry.height
-    );
-    const width = right - left;
-    const height = bottom - top;
-
-    if (left < right && top < bottom) {
-      const targetArea = target.width * target.height;
-      const entryArea = entry.width * entry.height;
-      const intersectionArea = width * height;
-      const intersectionRatio =
-        intersectionArea / (targetArea + entryArea - intersectionArea);
-
-      return {
-        area: intersectionArea,
-        ratio: Number(intersectionRatio.toFixed(4)),
-      };
-    }
-
-    // Rectangles do not overlap, or overlap has an area of zero (edge/corner overlap)
-    return {
-      area: 0,
-      ratio: 0,
-    };
-  }
-
   function sortCollisionsDesc(
     {data: {value: a}}: CollisionDescriptor,
     {data: {value: b}}: CollisionDescriptor
@@ -127,7 +84,10 @@ export const Basic = () => {
    * 计算重叠的类型：
    * return 0 | 1 | 2. 0 表示没有重叠，1 表示左上角落在另一个矩形的内部边缘，2 表示左上角落在另一个矩形的核心区域
    */
-  function calcIntersectionType(rect, collisionRect) {
+  function calcIntersectionType(
+    rect: {top: number; right: number; bottom: number; left: number},
+    collisionRect: {top: number; left: number}
+  ) {
     const pointer = {
       top: collisionRect.top,
       left: collisionRect.left,
@@ -293,10 +253,34 @@ export const Basic = () => {
                   }
                 }
               }
+            } else {
+
+              if (collisionTop < top + collisionOffset) {
+                style.height = 2;
+                style.width = width;
+                style.left = left;
+                if (i === 0) {
+                  style.top = top;
+                } else {
+                  const {bottom: preBottom} = childrenRects[i - 1];
+                  style.top = Math.round((top + preBottom) / 2);
+                }
+                insertIndex = i;
+                break;
+              }
+
+              if (i === l - 1 && collisionTop > bottom - collisionOffset) {
+                style.height = 2;
+                style.width = width;
+                style.left = left;
+                insertIndex = i + 1;
+                style.top = bottom;
+              }
             }
           }
 
           console.log('插入位置：', insertIndex);
+          console.log('style.top: ', style.top);
           setAnchor(style);
         } else {
           const rect = droppableRects.get(result[0].id);
