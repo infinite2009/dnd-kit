@@ -18,7 +18,7 @@ export default function Item({
 
   return (
     <div className={styles.label} style={style}>
-      <span>{text}</span>
+      <span style={{ backgroundColor: '#f2f4cc'}}>{text}</span>
       {children}
     </div>
   );

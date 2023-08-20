@@ -44,6 +44,7 @@ export default function EditWrapper({
     boxSizing: 'border-box',
     display: 'flex',
     flexDirection: direction || 'column',
+    margin: 10
   };
 
   return (
