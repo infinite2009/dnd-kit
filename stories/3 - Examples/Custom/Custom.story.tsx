@@ -12,7 +12,7 @@ import Item from './comopnent/Item';
 import EditWrapper from './comopnent/edit-wrapper';
 import {createPortal} from 'react-dom';
 import DropAnchor from './comopnent/drop-anchor';
-import {Simulate} from 'react-dom/test-utils';
+import {getEventCoordinates} from '@dnd-kit/utilities';
 
 export default {
   title: 'Examples/Custom/Custom',
@@ -34,6 +34,33 @@ export const Basic = () => {
   const [left, setLeft] = useState<number>(600);
   const [width, setWidth] = useState<number>(100);
   const [height, setHeight] = useState<number>(2);
+
+  const collisionOffset = 10;
+
+  function customModifier({activatorEvent, draggingNodeRect, transform}) {
+    if (draggingNodeRect && activatorEvent) {
+      const activatorCoordinates = getEventCoordinates(activatorEvent);
+
+      if (!activatorCoordinates) {
+        return transform;
+      }
+
+      const offsetX = activatorCoordinates.x - draggingNodeRect.left;
+      const offsetY = activatorCoordinates.y - draggingNodeRect.top;
+
+      return {
+        ...transform,
+        // x: transform.x + offsetX - draggingNodeRect.width / 2,
+        // y: transform.y + offsetY - draggingNodeRect.height / 2,
+        // x: transform.x + offsetX - 10,
+        // y: transform.y + offsetY - 10,
+        x: transform.x + offsetX - 4,
+        y: transform.y + offsetY - 4,
+      };
+    }
+
+    return transform;
+  }
 
   function handleDraggingStart({active}) {
     setActiveId(active.id);
@@ -108,24 +135,28 @@ export const Basic = () => {
     if (!isInRect(pointer, rect)) {
       return 0;
     }
-    if (isInRect(pointer, rect, 4)) {
+    if (isInRect(pointer, rect, collisionOffset)) {
       return 2;
     }
     return 1;
   }
 
-  function isInRect(point, rect, offset: number = 0) {
+  function isInRect(
+    point: {top: any; left: any},
+    rect: {top: any; right: any; bottom: any; left: any},
+    offset: number = 0
+  ) {
     const {top: pointerTop, left: pointerLeft} = point;
-    const {top, left, width, height} = rect;
+    const {top, right, bottom, left} = rect;
     const correctedTop = top + offset;
     const correctedLeft = left + offset;
-    const correctedWidth = width - offset;
-    const correctedHeight = height - offset;
+    const correctedRight = right - offset;
+    const correctedBottom = bottom - offset;
     return (
       pointerTop > correctedTop &&
-      pointerTop < correctedTop + correctedHeight &&
+      pointerTop < correctedBottom &&
       pointerLeft > correctedLeft &&
-      pointerLeft < correctedLeft + correctedWidth
+      pointerLeft < correctedRight
     );
   }
 
@@ -168,8 +199,6 @@ export const Basic = () => {
         }
       );
 
-      console.log('亲族图谱：', parentDict);
-
       for (const droppableContainer of droppableContainers) {
         // 查出每一个容器的矩形尺寸
         const {id} = droppableContainer;
@@ -199,74 +228,93 @@ export const Basic = () => {
         const {direction, childrenId} = result[0].data;
 
         // 从结果中过滤出子节点
-        const childrenRects = childrenId?.map((item: string) => {
-          return droppableRects.get(item);
-        });
+        const childrenRects = childrenId
+          ?.map((item: string) => {
+            return droppableRects.get(item);
+          })
+          .filter((item: any) => !!item);
 
         if (childrenRects?.length) {
-          // 根据容器内子元素的排列方向，如果是列排布，对比各个子元素的上下边界
-          // 寻找最近的兄弟节点
-          const ranges = childrenRects.map((item) =>
-            direction === 'column' ? item.top : item.left
-          ).filter(item => !!item);
-          ranges.push(
-            direction === 'column'
-              ? childrenRects[childrenRects.length - 1].bottom
-              : childrenRects[childrenRects.length - 1].right
-          );
+          // 默认插入尾部
+          let insertIndex = childrenRects.length;
 
-          let nearestIndex = 0;
-          let minDistance = Number.MAX_SAFE_INTEGER;
+          let style = {
+            top: 0,
+            left: 0,
+            width: 0,
+            height: 0,
+          };
 
-          for (let i = 0, l = ranges.length; i < l; i++) {
-            const distance = Math.abs(
-              ranges[i] -
-              (direction === 'column'
-                ? collisionRect.top
-                : collisionRect.left)
-            );
-            if (distance < minDistance) {
-              nearestIndex = i;
-              minDistance = distance;
+          // TODO: 这块重做
+          for (let i = 0, l = childrenRects.length; i < l; i++) {
+            const {top, right, bottom, left, height, width} = childrenRects[i];
+            const {
+              top: collisionTop,
+              right: collisionRight,
+              bottom: collisionBottom,
+              left: collisionLeft,
+            } = collisionRect;
+            // 判断碰撞左上角和这些矩形的位置关系，落在两者之间的，设下一个 index 为插入位置
+            if (direction === 'row') {
+              // 如果在当前矩形同行
+              if (collisionTop >= top && collisionTop <= bottom) {
+                style.top = top;
+                style.height = height;
+                style.width = 2;
+
+                  if (collisionLeft <= left + collisionOffset) {
+                    insertIndex = i;
+                    style.left = left;
+                    if (i > 0) {
+                      const {bottom: preBottom, right: preRight} = childrenRects[i - 1];
+                      // 如果和前一个没有换行
+                      if (!(top > preBottom && left < preRight)) {
+                        style.left = Math.round((preRight + left)/2);
+                      }
+                    }
+                    break;
+                  }
+
+                if (i < l - 1) {
+                  const {top: nextTop, left: nextLeft} = childrenRects[i + 1];
+                  // 如果下一个矩形发生了换行
+                  if (bottom < nextTop && nextLeft < right) {
+                    if (collisionLeft > right - collisionOffset) {
+                      style.left = right;
+                      insertIndex = i + 1;
+                      break;
+                    }
+                  }
+                } else {
+                  if (collisionLeft > right - collisionOffset) {
+                    style.left = right;
+                    insertIndex = i + 1;
+                    break;
+                  }
+                }
+              }
             }
           }
 
-          let style;
-          if (nearestIndex < childrenRects.length) {
-            style = {...childrenRects[nearestIndex]};
-          } else {
-            style = {
-              ...childrenRects[nearestIndex - 1],
-            };
-            if (direction === 'column') {
-              style.top = childrenRects[nearestIndex - 1].bottom;
-            } else {
-              style.left = childrenRects[nearestIndex - 1].right;
-            }
-          }
-          if (direction === 'column') {
-            style.height = 2;
-          } else {
-            style.width = 2;
-          }
+          console.log('插入位置：', insertIndex);
           setAnchor(style);
         } else {
           const rect = droppableRects.get(result[0].id);
           let style;
-          if (direction === 'column') {
-            style = {
-              top: rect.top + Math.round(rect.height / 2),
-              width: rect.width,
-              height: 2,
-              left: rect.left,
-            }
-          } else {
+          if (direction === 'row') {
             style = {
               top: rect.top,
               width: 2,
               height: rect.height,
               left: rect.left + Math.round(rect.width / 2),
-            }
+            };
+          } else {
+            style = {
+              top: rect.top + Math.round(rect.height / 2),
+              width: rect.width,
+              height: 2,
+              left: rect.left,
+            };
           }
           setAnchor(style);
         }
@@ -285,6 +333,7 @@ export const Basic = () => {
           strategy: MeasuringStrategy.Always,
         },
       }}
+      modifiers={[customModifier]}
       onDragStart={handleDraggingStart}
       onDragOver={handleDraggingOver}
       onDragEnd={handleDraggingEnd}
