@@ -1,8 +1,10 @@
 import {
   CollisionDescriptor,
   defaultDropAnimationSideEffects,
-  DndContext, DragOverEvent,
-  DragOverlay, DragStartEvent,
+  DndContext,
+  DragOverEvent,
+  DragOverlay,
+  DragStartEvent,
   DropAnimation,
   MeasuringStrategy,
 } from '@dnd-kit/core';
@@ -73,6 +75,7 @@ export const Basic = () => {
     console.log('active: ', active);
     console.log('over: ', over);
   }
+
   function sortCollisionsDesc(
     {data: {value: a}}: CollisionDescriptor,
     {data: {value: b}}: CollisionDescriptor
@@ -127,7 +130,11 @@ export const Basic = () => {
     setHeight(obj.height);
   }
 
-  function isDescendant(entry: string, target: string, parentDict: {[key: string]: string}) {
+  function isDescendant(
+    entry: string,
+    target: string,
+    parentDict: {[key: string]: string}
+  ) {
     let currentParent = parentDict[entry];
     while (currentParent) {
       if (target === currentParent) {
@@ -165,7 +172,11 @@ export const Basic = () => {
         const rect = droppableRects.get(id);
 
         // 既不是自身，也不是自己的后代节点
-        if (rect && active.id !== id  && !isDescendant(id, active.id, parentDict)) {
+        if (
+          rect &&
+          active.id !== id &&
+          !isDescendant(id, active.id, parentDict)
+        ) {
           // 这里的 collisionRect 就是移动的矩形
           const intersectionType = calcIntersectionType(rect, collisionRect);
           if (intersectionType === 2) {
@@ -221,18 +232,19 @@ export const Basic = () => {
                 style.height = height;
                 style.width = 2;
 
-                  if (collisionLeft <= left + collisionOffset) {
-                    insertIndex = i;
-                    style.left = left;
-                    if (i > 0) {
-                      const {bottom: preBottom, right: preRight} = childrenRects[i - 1];
-                      // 如果和前一个没有换行
-                      if (!(top > preBottom && left < preRight)) {
-                        style.left = Math.round((preRight + left)/2);
-                      }
+                if (collisionLeft <= left + collisionOffset) {
+                  insertIndex = i;
+                  style.left = left;
+                  if (i > 0) {
+                    const {bottom: preBottom, right: preRight} =
+                      childrenRects[i - 1];
+                    // 如果和前一个没有换行
+                    if (!(top > preBottom && left < preRight)) {
+                      style.left = Math.round((preRight + left) / 2);
                     }
-                    break;
                   }
+                  break;
+                }
 
                 if (i < l - 1) {
                   const {top: nextTop, left: nextLeft} = childrenRects[i + 1];
@@ -253,7 +265,6 @@ export const Basic = () => {
                 }
               }
             } else {
-
               if (collisionTop < top + collisionOffset) {
                 style.height = 2;
                 style.width = width;
